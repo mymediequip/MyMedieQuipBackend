@@ -6,16 +6,16 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost:4200', '*']
 
 
-# DATABASES = {
-#     'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': 'simplypy_local',
-#             'USER': 'simplyfy',
-#             'PASSWORD': 'tech',
-#             'HOST': 'localhost',
-#             'PORT': '5432',
-#             },
-# }
+DATABASES = {
+    'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'mmq_local',
+            'USER': 'mmq',
+            'PASSWORD': 'tech',
+            'HOST': 'localhost',
+            'PORT': '5432',
+            },
+}
 
 API_URL = "http://127.0.0.1:8000/api/v1/"
 # FILE_PATH = "/var/www/html/simplyfy/Simplyfy/simplyfy"

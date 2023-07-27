@@ -53,22 +53,23 @@ class UserViewSet(viewsets.ModelViewSet):
         try:
 
             data = request.data.copy()
+            print(data)
             email = data.get("email",None)
-            phone_no = data.get("phone_no",None)
+            mobile = data.get("mobile",None)
 
             try:
-                otp =  Otp.objects.get(phone_no=phone_no)
+                otp =  Otp.objects.get(mobile=mobile)
 
 
             except Otp.DoesNotExist:
-                otp = Otp.objects.create(phone_no=phone_no)
+                otp = Otp.objects.create(mobile=mobile)
                 # otp = User.objects.get(email=email)
 
 
             otp.counter += 1
             otp.save()
             manage_otp = OtpManagement()
-            otp_dict = manage_otp.generateotp(otp.phone_no,otp.counter)
+            otp_dict = manage_otp.generateotp(otp.mobile,otp.counter)
             print(otp_dict["code"])
             # obj = send_mail(
             #       'Registration',
@@ -81,17 +82,18 @@ class UserViewSet(viewsets.ModelViewSet):
             new_data = {}
             new_data["otp"] = otp_dict["code"]
 
-            return CustomeResponse(
-                new_data,
-                status=status.HTTP_200_OK
-            )
+            return SimpleResponse(
+                        {"data":new_data},
+                        status=status.HTTP_200_OK
+                    )
 
         except Exception as e:
-            return CustomeResponse(
-                {"msg":str(e)},
-                status=status.HTTP_400_BAD_REQUEST,
-                validate_errors=1,
-            )
+            return SimpleResponse(
+                        {"msg":str(e)},
+                        status=status.HTTP_400_BAD_REQUEST,
+                        validate_errors=1,
+                    )
+            
 
 
 
@@ -103,11 +105,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
         """
 
-        phone_no = request.data.get("phone_no",None)
+        mobile = request.data.get("mobile",None)
         code =  request.data.get("otp",None)
         response_data = {}
         try:
-            otp = Otp.objects.get(phone_no=phone_no)
+            otp = Otp.objects.get(mobile=mobile)
 
         except Otp.DoesNotExist:
             return CustomeResponse(
@@ -117,14 +119,14 @@ class UserViewSet(viewsets.ModelViewSet):
             )
         manage_otp = OtpManagement()
 
-        is_verified = manage_otp.verifyotp(code,otp.phone_no,otp.counter)
+        is_verified = manage_otp.verifyotp(code,otp.mobile,otp.counter)
         if is_verified:
             otp.is_verified=True
             otp.save()
 
             try:
-                user = User.objects.get(username=phone_no)
-                user_auth = authenticate(username=phone_no)
+                user = User.objects.get(username=mobile)
+                user_auth = authenticate(username=mobile)
         
                 if not user_auth:
                     return CustomeResponse(
@@ -142,8 +144,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
             except User.DoesNotExist:
                 user = User.objects.create(
-                    username = phone_no,
-                    phone_no=phone_no,
+                    username = mobile,
+                    mobile=mobile,
                     is_phone_verifed = True,
                     user_type = 2,
                     device_id = 1
@@ -157,7 +159,7 @@ class UserViewSet(viewsets.ModelViewSet):
             response_data["token"] = token
             response_data["username"] = user.username
             response_data["email"] = user.email 
-            response_data["phone_no"] = user.phone_no
+            response_data["mobile"] = user.mobile
             response_data["user_id"] = user.id
             response_data["name"] = user.name
             response_data["is_phone_verifed"] = user.is_phone_verifed

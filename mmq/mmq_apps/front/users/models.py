@@ -49,7 +49,7 @@ class UserType(models.Model):
     user_type = models.CharField(_('User Type'), max_length=50)
     
     class Meta:
-        db_table = 'simplyfy_users_usertype'
+        db_table = 'mmq_usertype'
         app_label = 'users'
         
 
@@ -147,7 +147,7 @@ class User(UUIDBase, AbstractBaseUser):
 
 
     class Meta:
-        db_table = 'simplyfy_users_user'
+        db_table = 'mmq_user'
 
 
 
@@ -164,7 +164,7 @@ class Profile(UUIDBase):
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
 
     class Meta:
-        db_table = 'simplyfy_users_profile'
+        db_table = 'mmq_profile'
 
 
 class Otp(models.Model):
@@ -175,7 +175,7 @@ class Otp(models.Model):
     is_verified = models.BooleanField(default=False)
 
     class Meta:
-        db_table = 'simplyfy_users_otp'
+        db_table = 'mmq_otp'
 
 
 

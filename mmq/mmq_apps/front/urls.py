@@ -20,5 +20,5 @@ from django.conf import settings
 
 urlpatterns = [
 
-    path('user/', include('mmq_apps.front.users.urls')),
+    path('front/', include('mmq_apps.front.users.urls')),
 ]
