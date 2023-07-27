@@ -1,0 +1,13 @@
+.pyc
+nbproject
+static
+media
+**/**/local.py
+**/**/migrations
+mysite.log
+*.*~
+manage.py
+__pycache__/
+venv/
+**/warning.log
+.idea
