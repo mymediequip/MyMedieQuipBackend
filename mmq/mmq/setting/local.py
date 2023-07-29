@@ -9,7 +9,7 @@ ALLOWED_HOSTS = ['localhost:4200', '*']
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'mmq_local',
+            'NAME': 'mmq_stage',
             'USER': 'mmq',
             'PASSWORD': 'tech',
             'HOST': 'localhost',
