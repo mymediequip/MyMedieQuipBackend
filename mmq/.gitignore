@@ -9,6 +9,7 @@ mysite.log
 *.*~
 manage.py
 __pycache__/
+**/__pycache__/
 venv/
 **/warning.log
 .idea
