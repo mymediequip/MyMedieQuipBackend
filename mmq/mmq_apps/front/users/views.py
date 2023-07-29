@@ -110,27 +110,32 @@ class UserViewSet(viewsets.ModelViewSet):
         response_data = {}
         try:
             otp = Otp.objects.get(mobile=mobile)
+            print(otp,"otp")
 
         except Otp.DoesNotExist:
-            return CustomeResponse(
-                {"msg":"Mobile Number does not Exist"},
-                status=status.HTTP_400_BAD_REQUEST,
-                validate_errors=1,
-            )
+            return SimpleResponse(
+                        {"msg": "Mobile Number does not Exist"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                        validate_errors=1
+                    )
         manage_otp = OtpManagement()
 
         is_verified = manage_otp.verifyotp(code,otp.mobile,otp.counter)
+        print("is_verified",is_verified)
         if is_verified:
             otp.is_verified=True
             otp.save()
+            user_auth = True
 
             try:
                 user = User.objects.get(username=mobile)
-                user_auth = authenticate(username=mobile)
+                print("user",user)
+                user_auth = False
+                # user_auth = authenticate(username=mobile)
         
                 if not user_auth:
-                    return CustomeResponse(
-                        {"msg":"User is not verified"},
+                    return SimpleResponse(
+                        {"msg": "Otp is wrong"},
                         status=status.HTTP_400_BAD_REQUEST,
                         validate_errors=1
                     )
@@ -143,37 +148,38 @@ class UserViewSet(viewsets.ModelViewSet):
                     print("log_object is ", log_object)
 
             except User.DoesNotExist:
+                print("Error",1)
+                usertype = UserType.objects.get(id=2)
                 user = User.objects.create(
                     username = mobile,
                     mobile=mobile,
-                    is_phone_verifed = True,
-                    user_type = 2,
-                    device_id = 1
+                    is_mobile_verified = True,
+                    user_type = usertype,
+                    # device_id = 1
                 )
                 
-                # print("user>>>",user)
+                print("user>>>",user)
                 user.set_unusable_password()
                 user.save( )
 
-            token = getToken(user.id)
-            response_data["token"] = token
+            # token = getToken(user.id)
+            # response_data["token"] = token
             response_data["username"] = user.username
             response_data["email"] = user.email 
             response_data["mobile"] = user.mobile
             response_data["user_id"] = user.id
-            response_data["name"] = user.name
-            response_data["is_phone_verifed"] = user.is_phone_verifed
-            return CustomeResponse(
-                response_data,
-                ExtraParam={"msg":"You are authorized"},
-                status=status.HTTP_200_OK
-            )
+            # response_data["name"] = user.name
+            response_data["is_mobile_verified"] = user.is_mobile_verified
+            return SimpleResponse(
+                        {"data":response_data},
+                        status=status.HTTP_200_OK
+                    )
         else:
-            return CustomeResponse(
-                {"msg": "Otp is wrong"},
-                status=status.HTTP_400_BAD_REQUEST,
-                validate_errors=1
-            )
+            return SimpleResponse(
+                        {"msg": "Otp is wrong"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                        validate_errors=1
+                    )
 
     @action(detail=False,methods=['post'])
     def update_user_profile(self,request):

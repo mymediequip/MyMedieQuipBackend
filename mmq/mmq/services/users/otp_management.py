@@ -29,7 +29,7 @@ class OtpManagement():
 
         print(copyotpde)
         print(email)
-        print(counter)
+        print("counter",counter)
         print(self)
 
         # st = str(datetime.date(datetime.now())) + str(email)

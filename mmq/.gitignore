@@ -4,6 +4,7 @@ static
 media
 **/**/local.py
 **/**/migrations
+**/migrations
 mysite.log
 *.*~
 manage.py
