@@ -1,0 +1,17 @@
+[
+  {
+    "model": "users.usertype",
+    "pk": 1,
+    "fields": {
+      "user_type": "Admin"
+    }
+  },
+  {
+    "model": "users.usertype",
+    "pk": 2,
+    "fields": {
+      "user_type": "Customer"
+    }
+  }
+]
+
