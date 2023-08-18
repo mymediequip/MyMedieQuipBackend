@@ -60,18 +60,30 @@ class UserViewSet(viewsets.ModelViewSet):
             mobile = data.get("mobile",None)
 
             try:
-                otp =  Otp.objects.get(mobile=mobile)
+                if mobile:
+                    otp =  Otp.objects.get(mobile=mobile)
+                if email:
+                    otp =  Otp.objects.get(email=email)
+
 
 
             except Otp.DoesNotExist:
-                otp = Otp.objects.create(mobile=mobile)
+                if mobile:
+                    otp = Otp.objects.create(mobile=mobile)
+                else:
+                    otp = Otp.objects.create(email=email)
+
                 # otp = User.objects.get(email=email)
 
 
             otp.counter += 1
             otp.save()
             manage_otp = OtpManagement()
-            otp_dict = manage_otp.generateotp(otp.mobile,otp.counter)
+            if mobile:
+                otp_dict = manage_otp.generateotp(otp.mobile,otp.counter)
+            if email:
+                otp_dict = manage_otp.generateotp(otp.email,otp.counter)
+
             print(otp_dict["code"])
             # obj = send_mail(
             #       'Registration',
@@ -91,6 +103,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     )
 
         except Exception as e:
+            printException()
             return SimpleResponse(
                         {"msg":str(e)},
                         status=status.HTTP_400_BAD_REQUEST,
@@ -109,6 +122,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """
 
         mobile = request.data.get("mobile",None)
+        email = request.data.get("email",None)
         code =  request.data.get("otp",None)
         response_data = {}
         try:
@@ -122,9 +136,8 @@ class UserViewSet(viewsets.ModelViewSet):
                         validate_errors=1
                     )
         manage_otp = OtpManagement()
-
-        is_verified = manage_otp.verifyotp(code,otp.mobile,otp.counter)
-        print("is_verified",is_verified)
+        
+        is_verified = manage_otp.verifyotp(code, otp.mobile if mobile else otp.email, otp.counter)
         try:
             if is_verified:
                 otp.is_verified=True
@@ -132,10 +145,15 @@ class UserViewSet(viewsets.ModelViewSet):
                 # user_auth = True
 
                 try:
-                    user = User.objects.get(username=mobile)
+                    if email:
+                        user = User.objects.get(email=email)
+                        user_auth = authenticate(username=email,user_type=2)
+                    if mobile:
+                        user = User.objects.get(mobile=mobile)
+                        user_auth = authenticate(username=mobile,user_type=2)
                     print("user",user)
                 
-                    user_auth = authenticate(mobile=mobile)
+                    
                     print(user_auth)
             
                     if not user_auth:
@@ -159,6 +177,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     user = User.objects.create(
                         username = mobile,
                         mobile=mobile,
+                        email=email,
                         is_mobile_verified = True,
                         user_type = usertype,
                         device_type = 1
@@ -273,6 +292,13 @@ class BannerViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     name = 'Banner'
 
+    def get_permissions(self):
+
+        if self.action == 'lists':
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(BannerViewSet, self).get_permissions()
+
     @action(detail = False,methods=['post'])
     def add(self,request):
         data = request.data.copy()
@@ -332,7 +358,133 @@ class BannerViewSet(viewsets.ModelViewSet):
 
 
 
+class MasterViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    name = 'Master'
 
+    def get_permissions(self):
+
+        if self.action == 'list_expertise' or self.action == 'list_ourclient':
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(MasterViewSet, self).get_permissions()
+
+    @action(detail = False,methods=['post'])
+    def add_expertise(self,request):
+        data = request.data.copy()
+        expertise_id = data.get("expertise_id",None)
+        try:
+            if expertise_id:
+                queryset = Expertise.objects.get(uid=expertise_id)
+                serializer_obj = ExpertiseSerializer(queryset,data=data)
+            else:
+                serializer_obj = ExpertiseSerializer(data=data)
+
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def list_expertise(self,request):
+        data = request.data.copy()
+        q_field = ['id']
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        try:
+            resp_data = common_list_data(request, data, q_field, ExpertiseSerializer, Expertise,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+
+
+    
+    @action(detail = False,methods=['post'])
+    def add_ourclient(self,request):
+        data = request.data.copy()
+        client_id = data.get("client_id",None)
+        try:
+            if client_id:
+                queryset = OurClient.objects.get(uid=client_id)
+                serializer_obj = OurClientSerializer(queryset,data=data)
+            else:
+                serializer_obj = OurClientSerializer(data=data)
+
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def list_ourclient(self,request):
+        data = request.data.copy()
+        q_field = ['id']
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        try:
+            resp_data = common_list_data(request, data, q_field, OurClientSerializer, OurClient,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
 
 
 

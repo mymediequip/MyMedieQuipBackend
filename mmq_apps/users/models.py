@@ -191,5 +191,24 @@ class Banner(UUIDBase):
         db_table = 'mmq_banner'
 
 
+class Expertise(UUIDBase):
+    name = models.CharField(max_length=200,null=True,blank=True)
+    image = models.ImageField(upload_to = "upload/expertise/",null=True,blank=True)
+    description = models.TextField(verbose_name="description",null=True,blank=True)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
 
+    class Meta:
+        db_table = 'mmq_expertise'
+
+
+class OurClient(UUIDBase):
+    name = models.CharField(max_length=200,null=True,blank=True)
+    image = models.ImageField(upload_to = "upload/expertise/",null=True,blank=True)
+    description = models.TextField(verbose_name="description",null=True,blank=True)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
+
+    class Meta:
+        db_table = 'mmq_our_client'
 

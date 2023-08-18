@@ -86,6 +86,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     name = 'Product'
 
+    def get_permissions(self):
+
+        if self.action == 'menulist' or self.action == 'verifyotp' or self.action == 'forgot_password' or self.action == 'reset_password':
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(CategoryViewSet, self).get_permissions()
+
     @action(detail = False,methods=['post'])
     def add(self,request):
         data = request.data.copy()
