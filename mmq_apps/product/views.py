@@ -88,7 +88,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
 
-        if self.action == 'menulist' or self.action == 'verifyotp' or self.action == 'forgot_password' or self.action == 'reset_password':
+        if self.action == 'menulist' or self.action == 'search_category' or self.action == 'forgot_password' or self.action == 'reset_password':
             print("\n in self action")
             return [AllowAny(), ] 
         return super(CategoryViewSet, self).get_permissions()
@@ -148,8 +148,42 @@ class CategoryViewSet(viewsets.ModelViewSet):
     @action(detail = False,methods=['post'])
     def menulist(self,request):
         data = request.data.copy()
+        q_field = ["name"]
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        if 'q' not in data and 'name' not in data and 'id' not in data and 'parent' not in data:
+            data['parent'] = None
+
+        print(data)
         try:
-            queryset = Category.objects.filter(parent=None)
+            resp_data = common_list_data(request, data, q_field, CategorySerializer, Category,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+        
+        
+    @action(detail = False,methods=['post'])
+    def search_category(self,request):
+        data = request.data.copy()
+        category_id = data.get("id",None)
+        try:
+            if category_id:
+                queryset = Category.objects.filter(id=category_id)
+            else:
+                queryset = Category.objects.filter(parent=None)
             serializer_obj = CategorySerializer(queryset,many=True)
             
             return SimpleResponse(
@@ -164,6 +198,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
+        
+        
         
 
     @action(detail = False,methods=['post'])

@@ -359,6 +359,8 @@ class BannerViewSet(viewsets.ModelViewSet):
 
 
 class MasterViewSet(viewsets.ModelViewSet):
+    queryset = Expertise.objects.all()
+    serializer_class = ExpertiseSerializer
     permission_classes = (IsAuthenticated,)
     name = 'Master'
 

@@ -19,6 +19,6 @@ from django.conf import settings
 
 
 urlpatterns = [
-    path('users/', include('mmq_apps.users.urls')),
+    path('', include('mmq_apps.users.urls')),
     path('product/', include('mmq_apps.product.urls'))
 ]
