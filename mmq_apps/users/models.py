@@ -150,9 +150,14 @@ class User(UUIDBase, AbstractBaseUser):
         db_table = 'mmq_user'
 
 
-
 class Profile(UUIDBase):
     name = models.CharField(_("Name"), max_length=100, null=True, blank=True)
+    first_name = models.CharField(_("First Name"), max_length=100, null=True, blank=True)
+    last_name = models.CharField(_("Last Name"), max_length=100, null=True, blank=True)
+    gstin = models.CharField(_("GSTIN"), max_length=100, null=True, blank=True) 
+    pan_no = models.CharField(_("Pan No"), max_length=100, null=True, blank=True) 
+    describe = models.TextField(_("Describe"), null=True, blank=True) 
+    profile_image = models.CharField(_("GSTIN"), max_length=250, null=True, blank=True) 
     dob = models.DateField(_("DOB"), null=True)
     gender = models.CharField(_("Gender"), null=True, max_length=10,blank=True)
     location = models.CharField(_("location"), max_length=200, null=True,blank=True)
@@ -183,6 +188,7 @@ class Banner(UUIDBase):
     title = models.CharField(max_length=200,null=True,blank=True)
     name = models.CharField(max_length=200,null=True,blank=True)
     image = models.ImageField(upload_to = "upload/banner/",null=True,blank=True)
+    banner_image = models.CharField(_("Image"), max_length=250, null=True, blank=True) 
     description = models.TextField(verbose_name="description",null=True,blank=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
@@ -194,6 +200,7 @@ class Banner(UUIDBase):
 class Expertise(UUIDBase):
     name = models.CharField(max_length=200,null=True,blank=True)
     image = models.ImageField(upload_to = "upload/expertise/",null=True,blank=True)
+    expertise_image = models.CharField(_("Image"), max_length=250, null=True, blank=True) 
     description = models.TextField(verbose_name="description",null=True,blank=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
@@ -205,6 +212,7 @@ class Expertise(UUIDBase):
 class OurClient(UUIDBase):
     name = models.CharField(max_length=200,null=True,blank=True)
     image = models.ImageField(upload_to = "upload/expertise/",null=True,blank=True)
+    client_image = models.CharField(_("Image"), max_length=250, null=True, blank=True) 
     description = models.TextField(verbose_name="description",null=True,blank=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)

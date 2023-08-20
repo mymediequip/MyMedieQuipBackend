@@ -62,10 +62,17 @@ class UserDetailSerializer(serializers.ModelSerializer):
         profile_data = {}
         try:
             queryset = Profile.objects.get(user=obj.id)
-            profile_data = ProfileSerializer(queryset).data
+            print("queryset",queryset)
+            profile_data = ProfileDetailSerializer(queryset).data
         except Exception as e:
             pass
         return profile_data
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        created_date = instance.created_date.strftime(settings.FRONT_DATE_FORMATE) if instance.created_date is not None and instance.created_date!="" else None
+        representation['date'] = created_date
+        return representation 
 
     class Meta:
         model = User
@@ -78,8 +85,27 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
-    state_name = serializers.ReadOnlyField(source='state.name')
-    cozuntry_name = serializers.ReadOnlyField(source='country.name')
+    profile_image = serializers.SerializerMethodField('get_profile_image')
+
+    def get_profile_image(self, obj):
+        path = ''
+        try:
+            image = obj.profile_image
+            print(image,"...........s_image")
+            if image:
+                path =  str(settings.BASE_FILE_PATH)+'static/upload/profile/'+image
+
+            return path
+        except Exception as e:
+            print("error",e)
+            return path
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        created_date = instance.created_date.strftime(settings.FRONT_DATE_FORMATE) if instance.created_date is not None and instance.created_date!="" else None
+        representation['date'] = created_date
+        return representation
+    
     class Meta:
         model = Profile
         fields = '__all__'
@@ -112,14 +138,93 @@ class BannerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class BannerDeatilSerializer(serializers.ModelSerializer):
+
+    banner_image = serializers.SerializerMethodField('get_banner_image')
+
+    def get_banner_image(self, obj):
+        path = ''
+        try:
+            image = obj.banner_image
+            print(image,"...........s_image")
+            if image:
+                path =  str(settings.BASE_FILE_PATH)+'static/upload/banner/'+image
+
+            return path
+        except Exception as e:
+            print("error",e)
+            return path
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        created_date = instance.created_date.strftime(settings.FRONT_DATE_FORMATE) if instance.created_date is not None and instance.created_date!="" else None
+        representation['date'] = created_date
+        return representation
+
+    class Meta:
+        model = Banner
+        fields = '__all__'
+
 class ExpertiseSerializer(serializers.ModelSerializer):
+
 
     class Meta:
         model = Expertise
         fields = '__all__'
 
+class ExpertiseDeatilSerializer(serializers.ModelSerializer):
+    expertise_image = serializers.SerializerMethodField('get_expertise_image')
+
+    def get_expertise_image(self, obj):
+        path = ''
+        try:
+            image = obj.expertise_image
+            print(image,"...........s_image")
+            if image:
+                path =  str(settings.BASE_FILE_PATH)+'static/upload/expertise/'+image
+
+            return path
+        except Exception as e:
+            print("error",e)
+            return path
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        created_date = instance.created_date.strftime(settings.FRONT_DATE_FORMATE) if instance.created_date is not None and instance.created_date!="" else None
+        representation['date'] = created_date
+        return representation
+
+    class Meta:
+        model = Expertise
+        fields = '__all__'
 
 class OurClientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OurClient
+        fields = '__all__'
+
+class OurClientDetailSerializer(serializers.ModelSerializer):
+    client_image = serializers.SerializerMethodField('get_client_image')
+
+    def get_client_image(self, obj):
+        path = ''
+        try:
+            image = obj.client_image
+            print(image,"...........s_image")
+            if image:
+                path =  str(settings.BASE_FILE_PATH)+'static/upload/client/'+image
+
+            return path
+        except Exception as e:
+            print("error",e)
+            return path
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        created_date = instance.created_date.strftime(settings.FRONT_DATE_FORMATE) if instance.created_date is not None and instance.created_date!="" else None
+        representation['date'] = created_date
+        return representation
 
     class Meta:
         model = OurClient

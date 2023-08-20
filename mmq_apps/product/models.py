@@ -56,7 +56,8 @@ class ProductDetails(UUIDBase):
 class ProductImage(UUIDBase):
     product = models.ForeignKey(Product,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True)
     title = models.CharField(max_length=200,null=True,blank=True)
-    image = models.ImageField(upload_to = "upload/profile_image/",null=True,blank=True)
+    # image = models.ImageField(upload_to = "upload/profile_image/",null=True,blank=True)
+    p_image = models.CharField(max_length=250,null=True,blank=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
 

@@ -27,9 +27,77 @@ from .models import *
 from .serializers import *
 from mmq.common_list_data import common_list_data
 from mmq.functions import *
+import requests
 
 
+def get_access_token(mobile,password):
+    try:
+        print(mobile,password)
+        api_url = settings.API_URL + 'token/'
+        r = requests.post(api_url,{"mobile":mobile, "password":password})
+        if r.status_code == requests.codes.ok:
+            print(">>>>>>>>>>>>>>>>>>>token deleted")
+        else:
+            print(">>>>>>>>>>>>>>>>>>>>>>>token could not deteted")
+        token_data = r.json()
+        print("token_data",token_data)
+        if token_data:
+            access_token = token_data["access"]
+            refresh_token = token_data["refresh"]
+        else:
+            access_token = ""
+            refresh_token = ""
+    except Exception as e:
+        print("Error",e)
+        printException()
+        access_token = ""
+        refresh_token = ""
 
+    return {'access_token':str(access_token),'refresh_token':refresh_token}
+
+def productImage(request,booking_id):
+    try:
+        data = {}
+        user = request.user
+        msg = False
+        if 'product_image' in request.FILES:
+            files = request.FILES.getlist('product_image')
+            for f in files:
+                file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'products/',f)
+                if file:
+                    data.update({"booking_id":booking_id,"image":file,"created_by":user.uid})
+                    # serializer_obj = ProductImagesSerializer(data=data)
+                    try:
+                        if serializer_obj.is_valid():
+                            add_save = serializer_obj.save()
+                            msg = True
+                        else:
+                            msg = False
+
+                    except Exception as e:
+                        printException()
+                        print("error...",e)
+                        msg =  False
+                    print("file........",file)
+                else:
+                    msg =  False
+        return msg
+       
+    except Exception as e:
+        print(e, '--------------error')
+        printException()
+        return False
+
+def fetch_blob_data(blob_url):
+    response = requests.get(blob_url)
+    print(response)
+
+    if response.status_code == 200:
+        return response.content  # Binary data as bytes
+    else:
+        print(f"Failed to fetch blob data from {blob_url}")
+        return None
+    
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = OtpSerializer
@@ -48,7 +116,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def generateotp(self,request):  
         """
-            This method is used for otp genera
+            This method is used for otp generate
 
         """
 
@@ -124,6 +192,11 @@ class UserViewSet(viewsets.ModelViewSet):
         mobile = request.data.get("mobile",None)
         email = request.data.get("email",None)
         code =  request.data.get("otp",None)
+        username = None
+        if mobile:
+            username = mobile
+        if email:
+            username = email
         response_data = {}
         try:
             otp = Otp.objects.get(mobile=mobile)
@@ -151,10 +224,10 @@ class UserViewSet(viewsets.ModelViewSet):
                     if mobile:
                         user = User.objects.get(mobile=mobile)
                         user_auth = authenticate(username=mobile,user_type=2)
-                    print("user",user)
+                    # print("user",user)
                 
                     
-                    print(user_auth)
+                    # print(user_auth)
             
                     if not user_auth:
                         return SimpleResponse(
@@ -168,7 +241,7 @@ class UserViewSet(viewsets.ModelViewSet):
                         user.device_id = 1
                         user.save()
 
-                        print("log_object is ", log_object)
+                        # print("log_object is ", log_object)
 
                 except User.DoesNotExist:
                     print("Error",1)
@@ -186,13 +259,16 @@ class UserViewSet(viewsets.ModelViewSet):
                     print("user>>>",user)
                     user.set_unusable_password()
                     user.save( )
-                print("user.id",)
+                # print("user.id",)
                 token = createToken(user_id = user.id)
+                print("username",username)
+                jwt_token = get_access_token(mobile=username,password='123456')
+                print(jwt_token)
                 serializer_obj = UserSetSerializer(user).data
-                print("serializer_obj",serializer_obj)
+                # print("serializer_obj",serializer_obj)
                 serializer_obj.update({"token":str(token)})
 
-                print(serializer_obj)
+                # print(serializer_obj)
                 return SimpleResponse(
                             {"data":serializer_obj},
                             status=status.HTTP_200_OK
@@ -225,6 +301,18 @@ class UserViewSet(viewsets.ModelViewSet):
             
             if serializer.is_valid():
                 serializer.save()
+                print(request.FILES)
+                print(data,"data")
+                if 'image' in data:
+                    image =  fetch_blob_data(data['image'])
+                    print(image)
+                if 'image' in request.FILES:
+                    image = request.FILES.get('image')
+                    file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'profile/',image)
+                    data['profile_image'] = file
+
+                print("data",data)
+                
                 try:
                     queryset = Profile.objects.get(user=userid)
                     serializer_obj = ProfileSerializer(queryset,data=data)
@@ -304,6 +392,10 @@ class BannerViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         banner_id = data.get("banner_id",None)
         try:
+            if 'image' in request.FILES:
+                image = request.FILES.get('image')
+                file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'banner/',image)
+                data['banner_image'] = file
             if banner_id:
                 queryset = Banner.objects.get(id=banner_id)
                 serializer_obj = BannerSerializer(queryset,data=data)
@@ -341,7 +433,7 @@ class BannerViewSet(viewsets.ModelViewSet):
         if sort =='asc':
             orderfilter = 'id'
         try:
-            resp_data = common_list_data(request, data, q_field, BannerSerializer, Banner,orderfilter)
+            resp_data = common_list_data(request, data, q_field, BannerDeatilSerializer, Banner,orderfilter)
             return SimpleResponse(
                         {"data":resp_data['data']},
                         status=status.HTTP_200_OK
@@ -376,6 +468,10 @@ class MasterViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         expertise_id = data.get("expertise_id",None)
         try:
+            if 'image' in request.FILES:
+                image = request.FILES.get('image')
+                file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'expertise/',image)
+                data['expertise_image'] = file
             if expertise_id:
                 queryset = Expertise.objects.get(uid=expertise_id)
                 serializer_obj = ExpertiseSerializer(queryset,data=data)
@@ -413,7 +509,7 @@ class MasterViewSet(viewsets.ModelViewSet):
         if sort =='asc':
             orderfilter = 'id'
         try:
-            resp_data = common_list_data(request, data, q_field, ExpertiseSerializer, Expertise,orderfilter)
+            resp_data = common_list_data(request, data, q_field, ExpertiseDeatilSerializer, Expertise,orderfilter)
             return SimpleResponse(
                         {"data":resp_data['data']},
                         status=status.HTTP_200_OK
@@ -436,6 +532,11 @@ class MasterViewSet(viewsets.ModelViewSet):
         data = request.data.copy()
         client_id = data.get("client_id",None)
         try:
+            if 'image' in request.FILES:
+                image = request.FILES.get('image')
+                file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'client/',image)
+                data['client_image'] = file
+
             if client_id:
                 queryset = OurClient.objects.get(uid=client_id)
                 serializer_obj = OurClientSerializer(queryset,data=data)
@@ -473,7 +574,7 @@ class MasterViewSet(viewsets.ModelViewSet):
         if sort =='asc':
             orderfilter = 'id'
         try:
-            resp_data = common_list_data(request, data, q_field, OurClientSerializer, OurClient,orderfilter)
+            resp_data = common_list_data(request, data, q_field, OurClientDetailSerializer, OurClient,orderfilter)
             return SimpleResponse(
                         {"data":resp_data['data']},
                         status=status.HTTP_200_OK
