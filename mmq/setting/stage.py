@@ -18,6 +18,6 @@ DATABASES = {
 }
 
 API_URL = "http://127.0.0.1:8000/api/v1/"
-FILE_PATH = "http://13.53.198.145:8000/mmq_apps/"
+BASE_FILE_PATH = "http://13.53.198.145:8000/mmq_apps/"
 # NEW_API_URL = "http://127.0.0.1:8000/api/v1/"
 
