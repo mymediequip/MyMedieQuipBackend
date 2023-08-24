@@ -1,6 +1,6 @@
 from .base import *
 
-DOMAIN_NAME = 'http://127.0.0.1:8000'
+DOMAIN_NAME = 'http://13.53.198.145:8000/'
 
 DEBUG = True
 ALLOWED_HOSTS = ['localhost:4200', '*']
@@ -18,6 +18,6 @@ DATABASES = {
 }
 
 API_URL = "http://127.0.0.1:8000/api/v1/"
-# FILE_PATH = "/var/www/html/simplyfy/Simplyfy/simplyfy"
+FILE_PATH = "http://13.53.198.145:8000/mmq_apps/"
 # NEW_API_URL = "http://127.0.0.1:8000/api/v1/"
 
