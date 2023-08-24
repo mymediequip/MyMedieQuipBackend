@@ -303,9 +303,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.save()
                 print(request.FILES)
                 print(data,"data")
-                if 'image' in data:
-                    image =  fetch_blob_data(data['image'])
-                    print(image)
+                # if 'image' in data:
+                #     image =  fetch_blob_data(data['image'])
+                #     print(image)
                 if 'image' in request.FILES:
                     image = request.FILES.get('image')
                     file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'profile/',image)
