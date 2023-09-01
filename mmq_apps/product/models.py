@@ -32,7 +32,7 @@ class Speciality(UUIDBase):
 
 class Equipment(UUIDBase):
     name = models.CharField(max_length=200,null=True,blank=True, unique=True)
-    category = ArrayField(models.PositiveIntegerField(),default=list)
+    category = ArrayField(models.CharField(max_length=200,null=True,blank=True),default=list)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
 

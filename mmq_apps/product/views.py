@@ -30,6 +30,12 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     def add(self,request):
         data = request.data.copy()
         equipment_id = data.get("equipment_id",None)
+        print(type(data['category']))
+        cate = data.get('category')
+        cat = cate.split(',')
+        print(cat)
+        data['category'] = cat
+        print(data,"data")
         try:
             if equipment_id:
                 queryset = Equipment.objects.get(id=equipment_id)
@@ -51,6 +57,7 @@ class EquipmentViewSet(viewsets.ModelViewSet):
                 )
         except Exception as e:
             print("Error",str(e))
+            printException()
             return SimpleResponse(
                     {"msg":str(e)},
                     status= status.HTTP_400_BAD_REQUEST,
@@ -208,6 +215,36 @@ class ProductViewSet(viewsets.ModelViewSet):
                         {"data":resp_data['data']},
                         status=status.HTTP_200_OK
             )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+
+    @action(detail = False,methods=['post'])
+    def details(self,request):
+        data = request.data.copy()
+        product_id = data.get("product_id")
+        
+        try:
+            if product_id:
+                queryset = Product.objects.get(uid=product_id)
+                serializer_obj = ProductSerializer(queryset)
+                return SimpleResponse(
+                            {"data":serializer_obj.data},
+                            status=status.HTTP_200_OK
+                )
+            else:
+                return SimpleResponse(
+                    {"msg":"product_id is required field"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
 
         except Exception as e:
             print("Error",str(e))

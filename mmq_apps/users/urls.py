@@ -12,5 +12,4 @@ router.register(r'banner', users_views.BannerViewSet),
 router.register(r'master', users_views.MasterViewSet)
 
 
-
 urlpatterns = router.urls
