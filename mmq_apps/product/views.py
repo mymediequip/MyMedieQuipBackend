@@ -180,7 +180,61 @@ class ProductViewSet(viewsets.ModelViewSet):
                 serializer_obj = ProductSerializer(data=data)
 
             if serializer_obj.is_valid():
-                serializer_obj.save()
+                add = serializer_obj.save()
+                image = {}
+                video = {}
+                if 'images' in request.FILES:
+                    files = request.FILES.getlist('images')
+                    for f in files:
+                        file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'product/image/',f)
+                        print(file)
+                        if file:
+                            image.update({"product":add.uid,"p_image":file})
+                            image_serializer_obj = ProductImageSerializer(data=image)
+                            try:
+                                if image_serializer_obj.is_valid():
+                                    image_serializer_obj.save()
+                                    msg = True
+                                else:
+                                    msg = False
+
+                            except Exception as e:
+                                printException()
+                                print("error...",e)
+                                msg =  False
+                            print("file........",file)
+                        else:
+                            msg =  False
+
+                        print("msg",msg)
+
+
+                if 'videos' in request.FILES:
+                    files = request.FILES.getlist('videos')
+                    for f in files:
+                        file = file_save_by_source(request,settings.FILE_UPLOAD_PATH+'product/video/',f)
+                        print(file)
+                        if file:
+                            video.update({"product":add.uid,"video":file})
+                            video_serializer_obj = ProductVideoSerializer(data=video)
+                            try:
+                                if video_serializer_obj.is_valid():
+                                    video_serializer_obj.save()
+                                    msg = True
+                                else:
+                                    msg = False
+
+                            except Exception as e:
+                                printException()
+                                print("error...",e)
+                                msg =  False
+                            print("file........",file)
+                        else:
+                            msg =  False
+
+                        print("msg",msg)
+                
+               
                 return SimpleResponse(
                         {"data":serializer_obj.data},
                         status=status.HTTP_200_OK
@@ -234,7 +288,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         try:
             if product_id:
                 queryset = Product.objects.get(uid=product_id)
-                serializer_obj = ProductSerializer(queryset)
+                serializer_obj = ProductDetailSerializer(queryset)
                 return SimpleResponse(
                             {"data":serializer_obj.data},
                             status=status.HTTP_200_OK
