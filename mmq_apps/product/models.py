@@ -82,6 +82,9 @@ class Product(UUIDBase):
     shipping_form = models.CharField(max_length=200,null=True,blank=True)
     posted = models.DateField(_("DOB"), null=True)
     visit = models.CharField(max_length=200,null=True,blank=True)
+    address = models.TextField(null=True,blank=True)
+    latitude = models.CharField(max_length=200,null=True,blank=True)
+    longitude = models.CharField(max_length=200,null=True,blank=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
 
