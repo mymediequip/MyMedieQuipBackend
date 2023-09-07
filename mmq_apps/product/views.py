@@ -279,6 +279,39 @@ class ProductViewSet(viewsets.ModelViewSet):
                     validate_errors =1
                 )
 
+    @action(detail = False,methods=['post'])
+    def filter_list(self,request):
+        data = request.data.copy()
+        q_field = ["name"]
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        list_data = {}
+        
+        try:
+            resp_data = common_list_data(request, data, q_field, ProductDetailSerializer, Product,orderfilter)
+            list_data = {
+            "new_products":resp_data['data'],
+            "featured_products":resp_data['data'],
+            "best_seller_products":resp_data['data']
+            }
+
+
+            return SimpleResponse(
+                        {"data":list_data},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
 
     @action(detail = False,methods=['post'])
     def details(self,request):

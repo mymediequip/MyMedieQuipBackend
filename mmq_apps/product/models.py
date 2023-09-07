@@ -46,6 +46,7 @@ class Product(UUIDBase):
     # equipment = models.ForeignKey(Equipment,to_field="uid", verbose_name=_("Equipment"),on_delete=models.DO_NOTHING,null=True,blank=True)
     # name = models.CharField(max_length=200,null=True,blank=True)
     # price = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    
     POST_TYPE = (
         (1, "USED"),
         (2, "NEW"),
