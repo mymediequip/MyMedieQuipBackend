@@ -220,3 +220,7 @@ class OurClient(UUIDBase):
     class Meta:
         db_table = 'mmq_our_client'
 
+
+
+
+

@@ -229,3 +229,5 @@ class OurClientDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OurClient
         fields = '__all__'
+
+

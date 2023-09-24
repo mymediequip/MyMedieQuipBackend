@@ -125,3 +125,9 @@ class ProductVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVideo
         fields = '__all__'
+
+class ScheduleMeetingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model=ScheduleMeeting
+        fields='__all__'
