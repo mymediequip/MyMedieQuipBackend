@@ -162,7 +162,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
 
-        if self.action == 'plists':
+        if self.action == 'plists' or self.action == 'filter_list':
             print("\n in self action")
             return [AllowAny(), ] 
         return super(ProductViewSet, self).get_permissions()
