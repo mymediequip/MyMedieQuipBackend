@@ -55,7 +55,9 @@ class Product(UUIDBase):
     )
     post_type = models.CharField(
         _("Condition"), choices=POST_TYPE, max_length=50, blank=True)
-    category = models.ForeignKey(Category, verbose_name=_("Category"),on_delete=models.DO_NOTHING,null=True,blank=True)
+    # category = models.ForeignKey(Category, verbose_name=_("Category"),on_delete=models.DO_NOTHING,null=True,blank=True)
+    # category_list = models.ManyToManyField(Category)
+    category_list = models.CharField(max_length=200,null=True, blank=True)
     speciality_name = models.CharField(max_length=200,null=True,blank=True)
     equip_name = models.CharField(max_length=200,null=True,blank=True)
     description = models.TextField(verbose_name="description",null=True,blank=True)
@@ -159,3 +161,6 @@ class ProductVideo(UUIDBase):
 
     class Meta:
         db_table = 'mmq_product_video'
+
+
+

@@ -143,12 +143,6 @@ USE_TZ = True
 FRONT_DATE_FORMATE = "%d/%m/%Y"
 BACKEND_DATE_FORMATE = "%Y-%m-%d"
 FILE_UPLOAD_PATH = 'mmq_apps/static/upload/'
-BUYER_FILE_UPLOAD = 'gogetme_apps/buyer/static/upload/'
-SELLER_FILE_UPLOAD = 'gogetme_apps/seller/static/upload/'
-
-SERVICE_FILE_UPLOAD = 'gogetme_apps/services/static/upload/'
-MASTER_FILE_UPLOAD = 'gogetme_apps/master/static/upload/'
-DASHBOARD_FILE_UPLOAD = 'gogetme_apps/services/static/upload/'
 
 
 
