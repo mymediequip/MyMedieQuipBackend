@@ -161,17 +161,52 @@ class ProductViewSet(viewsets.ModelViewSet):
     name = 'Product'
 
 
+    def get_permissions(self):
+
+        if self.action == 'plists' or self.action == 'filter_list':
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(ProductViewSet, self).get_permissions()
+
+
+    @action(detail = False,methods=['post'])
+    def plists(self,request):
+        data = request.data.copy()
+        q_field = ["equip_name"]
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        
+        try:
+            resp_data = common_list_data(request, data, q_field, ProductDetailSerializer, Product,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
     @action(detail = False,methods=['post'])
     def add(self,request):
         data = request.data.copy()
         product_id = data.get("product_id",None)
         post_type= data.get('post_type')
+        data['user'] = request.user.uid
         if not post_type:
             return SimpleResponse(
                     {"msg":"post_type is required field"},
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
+        
 
         try:
             if product_id:
@@ -258,14 +293,15 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail = False,methods=['post'])
     def lists(self,request):
         data = request.data.copy()
-        q_field = ["name"]
+        q_field = ["equip_name"]
         orderfilter = '-id'
+        data['user'] = request.user.uid
         sort = data.get('sort',None)
         if sort =='asc':
             orderfilter = 'id'
         
         try:
-            resp_data = common_list_data(request, data, q_field, ProductSerializer, Product,orderfilter)
+            resp_data = common_list_data(request, data, q_field, ProductDetailSerializer, Product,orderfilter)
             return SimpleResponse(
                         {"data":resp_data['data']},
                         status=status.HTTP_200_OK
@@ -283,12 +319,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail = False,methods=['post'])
     def filter_list(self,request):
         data = request.data.copy()
-        q_field = ["name"]
+        q_field = ["equip_name"]
         orderfilter = '-id'
         sort = data.get('sort',None)
         if sort =='asc':
             orderfilter = 'id'
         list_data = {}
+        # data['exclude'] = {"user":}
         
         try:
             resp_data = common_list_data(request, data, q_field, ProductDetailSerializer, Product,orderfilter)
