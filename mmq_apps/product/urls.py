@@ -11,6 +11,8 @@ router.register(r'', users_views.ProductViewSet),
 router.register(r'category', users_views.CategoryViewSet),
 router.register(r'equipment', users_views.EquipmentViewSet),
 router.register(r'speciality', users_views.SpecialityViewSet)
+# router.register(r'schedulemeeting', users_views.ScheduleMeetingViewSet)
+
 
 
 urlpatterns = router.urls

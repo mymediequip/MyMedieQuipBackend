@@ -161,6 +161,18 @@ class ProductVideo(UUIDBase):
 
     class Meta:
         db_table = 'mmq_product_video'
-
-
+class ScheduleMeeting(UUIDBase):
+    buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="buyer")
+    seller = models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="seller")
+    product = models.ForeignKey(Product,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="meeting_product")
+    title=models.CharField(max_length=200,null=True,blank=True)
+    date=models.DateField()
+    start_time=models.TimeField()
+    end_time=models.TimeField()
+    duration=models.DurationField()
+    remind_me=models.TimeField(blank=True,null=True)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    
+    class Meta:
+        db_table='mmq_schedule_meeting'
 
