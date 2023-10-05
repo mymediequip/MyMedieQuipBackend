@@ -378,6 +378,35 @@ class ProductViewSet(viewsets.ModelViewSet):
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
+
+
+        #  schodule Meeting
+        @action(detail = False,methods=['post'])
+        def schedule_meeting(self,request):
+            data=request.data.copy()
+            try:
+                serializer_obj=ScheduleMeetingSerializer(data=data)
+                if serializer_obj.is_valid():
+                    serializer_obj.save()
+                    return SimpleResponse(
+                            {"data":serializer_obj.data},
+                            status=status.HTTP_200_OK
+                        )
+                else:
+                    return SimpleResponse(
+                        {"msg":str(serializer_obj.errors)},
+                        status= status.HTTP_400_BAD_REQUEST,
+                        validate_errors =1
+                    )
+                    
+            except Exception as e:
+                print("Error",str(e))
+                printException()
+                return SimpleResponse(
+                        {"msg":str(e)},
+                        status= status.HTTP_400_BAD_REQUEST,
+                        validate_errors =1
+                    )
         
 
 
@@ -549,4 +578,71 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated,)
+    name = 'Order'
+
+    def get_permissions(self):
+
+        if self.action == 'menulist':
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(OrderViewSet, self).get_permissions()
+
+    @action(detail = False,methods=['post'])
+    def add(self,request):
+        data = request.data.copy()
+        uid = data.get("uid",None)
+        try:
+            if uid:
+                queryset = Order.objects.get(id=uid)
+                serializer_obj = OrderSerializer(queryset,data=data)
+            else:
+                serializer_obj = OrderSerializer(data=data)
+
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def lists(self,request):
+        data = request.data.copy()
+        try:
+            queryset = Order.objects.filter(status=1)
+            serializer_obj = OrderSerializer(queryset,many=True)
+            return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    
 

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from common.uid_base_model import UUIDBase
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-from mmq_apps.users.models import User
+from mmq_apps.users.models import User,PaymentOption
 from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
@@ -90,6 +90,12 @@ class Product(UUIDBase):
     longitude = models.CharField(max_length=200,null=True,blank=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
+    PRODUCT_STATUS = (
+        (1, "OPEN"),
+        (2, "LOCK")
+    )
+    product_status = models.CharField(
+        _("product_status"), choices=PRODUCT_STATUS, max_length=50, blank=True,default=1)
 
     class Meta:
         db_table = 'mmq_product'
@@ -164,3 +170,72 @@ class ProductVideo(UUIDBase):
 
 
 
+class ScheduleMeeting(UUIDBase):
+    buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="buyer")
+    seller = models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="seller")
+    product = models.ForeignKey(Product,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="meeting_product")
+    title=models.CharField(max_length=200,null=True,blank=True)
+    date=models.DateField()
+    start_time=models.TimeField()
+    end_time=models.TimeField()
+    duration=models.DurationField()
+    remind_me=models.TimeField(blank=True,null=True)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    
+    class Meta:
+        db_table='mmq_schedule_meeting'
+
+
+
+
+class Order(UUIDBase):
+    buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="order_buyer")
+    seller = models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="orderseller")
+    product = models.ForeignKey(Product,to_field="uid", verbose_name=_("Product"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="order_product")
+    asking_price = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    sub_total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    payment_type = models.ForeignKey(PaymentOption,verbose_name=_("Payment Type"),on_delete=models.DO_NOTHING,null=True,blank=True)
+    PAYMENT_STATUS = (
+        (1, "Pending"),
+        (2, "Partial"),
+        (3, "Completed")
+    )
+    payment_status = models.CharField(_("payment status"), choices=PAYMENT_STATUS, max_length=50, blank=True,default=1)
+
+    ORDER_STATUS = (
+        (1, "Pending"),
+        (2, "InProcess"),
+        (3, "Completed"),
+        (4, "Canceled")
+    )
+    order_status = models.CharField(_("payment status"), choices=ORDER_STATUS, max_length=50, blank=True,default=1)    
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    inspection_status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for True; 0 for False"), default=0)
+    
+    class Meta:
+        db_table='mmq_order'
+
+
+
+class Payment(UUIDBase):
+    order= models.ForeignKey(Order,to_field="uid", verbose_name=_("Order"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="payment_order")
+    sub_total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    payment_type = models.ForeignKey(PaymentOption,verbose_name=_("Payment Type"),on_delete=models.DO_NOTHING,null=True,blank=True)
+    PAYMENT_STATUS = (
+        (1, "Pending"),
+        (2, "Partial"),
+        (3, "Completed")
+    )
+    payment_status = models.CharField(_("payment status"), choices=PAYMENT_STATUS, max_length=50, blank=True)
+    ORDER_TYPE = (
+        (1, "Order"),
+        (2, "Inspection")
+    )
+    order_type = models.CharField(_("Order Type"), choices=ORDER_TYPE, max_length=50, blank=True,default=1)
+   
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    
+    class Meta:
+        db_table='mmq_payment'
