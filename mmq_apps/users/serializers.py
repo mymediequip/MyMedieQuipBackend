@@ -229,3 +229,11 @@ class OurClientDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OurClient
         fields = '__all__'
+
+
+
+class PaymentOptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PaymentOption
+        fields = '__all__'

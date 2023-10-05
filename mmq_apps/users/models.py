@@ -220,3 +220,11 @@ class OurClient(UUIDBase):
     class Meta:
         db_table = 'mmq_our_client'
 
+
+
+class PaymentOption(models.Model):
+    name = models.CharField(max_length=200,null=True,blank=True)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+
+    class Meta:
+        db_table = 'mmq_payment_option'

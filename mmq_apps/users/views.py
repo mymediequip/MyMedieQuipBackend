@@ -458,7 +458,7 @@ class MasterViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
 
-        if self.action == 'list_expertise' or self.action == 'list_ourclient':
+        if self.action == 'list_expertise' or self.action == 'list_ourclient' or self.action == 'payment_option':
             print("\n in self action")
             return [AllowAny(), ] 
         return super(MasterViewSet, self).get_permissions()
@@ -575,6 +575,32 @@ class MasterViewSet(viewsets.ModelViewSet):
             orderfilter = 'id'
         try:
             resp_data = common_list_data(request, data, q_field, OurClientDetailSerializer, OurClient,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+
+    @action(detail = False,methods=['post'])
+    def payment_option(self,request):
+        data = request.data
+        
+        q_field = ['id']
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        try:
+            resp_data = common_list_data(request, data, q_field, PaymentOptionSerializer, PaymentOption,orderfilter)
             return SimpleResponse(
                         {"data":resp_data['data']},
                         status=status.HTTP_200_OK
