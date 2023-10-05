@@ -1,0 +1,38 @@
+[
+  {
+    "model": "users.paymentoption",
+    "pk": 1,
+    "fields": {
+      "name": "Paytm UPI ID"
+    }
+  },
+  {
+    "model": "users.paymentoption",
+    "pk": 2,
+    "fields": {
+      "name": "UPI"
+    }
+  },
+  {
+    "model": "users.paymentoption",
+    "pk": 3,
+    "fields": {
+      "name": "Credit/ Debit/ ATM Card"
+    }
+  },
+  {
+    "model": "users.paymentoption",
+    "pk": 4,
+    "fields": {
+      "name": "Net Banking"
+    }
+  },
+  {
+    "model": "users.paymentoption",
+    "pk": 5,
+    "fields": {
+      "name": "EMI"
+    }
+  }
+]
+
