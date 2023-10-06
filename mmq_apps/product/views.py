@@ -154,6 +154,173 @@ class SpecialityViewSet(viewsets.ModelViewSet):
                     validate_errors =1
                 )
 
+     
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategoryListSerializer
+    permission_classes = (IsAuthenticated,)
+    name = 'Product'
+
+    def get_permissions(self):
+
+        if self.action == 'menulist' or self.action == 'search_category' or self.action == 'forgot_password' or self.action == 'reset_password':
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(CategoryViewSet, self).get_permissions()
+
+    @action(detail = False,methods=['post'])
+    def add(self,request):
+        data = request.data.copy()
+        category_id = data.get("category_id",None)
+        try:
+            if category_id:
+                queryset = Category.objects.get(id=category_id)
+                serializer_obj = CategorySerializer(queryset,data=data)
+            else:
+                serializer_obj = CategorySerializer(data=data)
+
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def lists(self,request):
+        data = request.data.copy()
+        try:
+            queryset = Category.objects.filter(status=1)
+            serializer_obj = CategoryListSerializer(queryset,many=True)
+            return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def menulist(self,request):
+        data = request.data.copy()
+        q_field = ["name"]
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        if 'q' not in data and 'name' not in data and 'id' not in data and 'parent' not in data:
+            data['parent'] = None
+
+        print(data)
+        try:
+            resp_data = common_list_data(request, data, q_field, CategorySerializer, Category,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+        
+        
+    @action(detail = False,methods=['post'])
+    def search_category(self,request):
+        data = request.data.copy()
+        category_id = data.get("id",None)
+        search = data.get('search',None)
+        try:
+            if category_id:
+                queryset = Category.objects.filter(id=category_id)
+            else:
+                queryset = Category.objects.filter(parent=None)
+            serializer_obj = CategorySerializer(queryset,many=True)
+            
+            return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+        
+        
+
+    @action(detail = False,methods=['post'])
+    def parentlist(self,request):
+        data = request.data.copy()
+        try:
+            queryset = Category.objects.filter(parent=None)
+            serializer_obj = CategoryListSerializer(queryset,many=True)
+            return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def subcategorylist(self,request):
+        data = request.data.copy()
+        parent_id = data.get('parent_id')
+        try:
+            queryset = Category.objects.filter(parent=parent_id)
+            serializer_obj = CategoryListSerializer(queryset,many=True)
+            return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -380,60 +547,12 @@ class ProductViewSet(viewsets.ModelViewSet):
                 )
 
 
-        #  schodule Meeting
-        @action(detail = False,methods=['post'])
-        def schedule_meeting(self,request):
-            data=request.data.copy()
-            try:
-                serializer_obj=ScheduleMeetingSerializer(data=data)
-                if serializer_obj.is_valid():
-                    serializer_obj.save()
-                    return SimpleResponse(
-                            {"data":serializer_obj.data},
-                            status=status.HTTP_200_OK
-                        )
-                else:
-                    return SimpleResponse(
-                        {"msg":str(serializer_obj.errors)},
-                        status= status.HTTP_400_BAD_REQUEST,
-                        validate_errors =1
-                    )
-                    
-            except Exception as e:
-                print("Error",str(e))
-                printException()
-                return SimpleResponse(
-                        {"msg":str(e)},
-                        status= status.HTTP_400_BAD_REQUEST,
-                        validate_errors =1
-                    )
-        
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategoryListSerializer
-    permission_classes = (IsAuthenticated,)
-    name = 'Product'
-
-    def get_permissions(self):
-
-        if self.action == 'menulist' or self.action == 'search_category' or self.action == 'forgot_password' or self.action == 'reset_password':
-            print("\n in self action")
-            return [AllowAny(), ] 
-        return super(CategoryViewSet, self).get_permissions()
-
+    #  schodule Meeting
     @action(detail = False,methods=['post'])
-    def add(self,request):
-        data = request.data.copy()
-        category_id = data.get("category_id",None)
+    def schedule_meeting(self,request):
+        data=request.data.copy()
         try:
-            if category_id:
-                queryset = Category.objects.get(id=category_id)
-                serializer_obj = CategorySerializer(queryset,data=data)
-            else:
-                serializer_obj = CategorySerializer(data=data)
-
+            serializer_obj=ScheduleMeetingSerializer(data=data)
             if serializer_obj.is_valid():
                 serializer_obj.save()
                 return SimpleResponse(
@@ -446,53 +565,117 @@ class CategoryViewSet(viewsets.ModelViewSet):
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
+                
         except Exception as e:
             print("Error",str(e))
+            printException()
             return SimpleResponse(
                     {"msg":str(e)},
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
-        
-    
+
+    #  Get schodule Meeting
     @action(detail = False,methods=['post'])
-    def lists(self,request):
-        data = request.data.copy()
+    def get_schedule_meeting(self,request):
+        data=request.data.copy()
+        product_id = data.get('product_id')
+        buyer_id = data.get('buyer_id')
         try:
-            queryset = Category.objects.filter(status=1)
-            serializer_obj = CategoryListSerializer(queryset,many=True)
+            queryset = ScheduleMeeting.objects.get(buyer=buyer_id,product=product_id).last()
+            serializer_obj = ScheduleMeetingSerializer(queryset)
             return SimpleResponse(
                         {"data":serializer_obj.data},
                         status=status.HTTP_200_OK
-                    )            
-
+                    )
+                
         except Exception as e:
             print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":"Record Not Found"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+
+    #  add inspection
+    @action(detail = False,methods=['post'])
+    def add_inspection(self,request):
+        data=request.data.copy()
+        try:
+            serializer_obj=InspectionReportSerializer(data=data)
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+                
+        except Exception as e:
+            print("Error",str(e))
+            printException()
             return SimpleResponse(
                     {"msg":str(e)},
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
-        
-    
-    @action(detail = False,methods=['post'])
-    def menulist(self,request):
-        data = request.data.copy()
-        q_field = ["name"]
-        orderfilter = '-id'
-        sort = data.get('sort',None)
-        if sort =='asc':
-            orderfilter = 'id'
-        if 'q' not in data and 'name' not in data and 'id' not in data and 'parent' not in data:
-            data['parent'] = None
 
-        print(data)
+    #  Get inspection
+    @action(detail = False,methods=['post'])
+    def get_inspection(self,request):
+        data=request.data.copy()
+        product_id = data.get('product_id')
+        buyer_id = data.get('buyer_id')
         try:
-            resp_data = common_list_data(request, data, q_field, CategorySerializer, Category,orderfilter)
+            queryset = InspectionReport.objects.get(buyer=buyer_id,product=product_id).last()
+            serializer_obj = InspectionReportSerializer(queryset)
             return SimpleResponse(
-                        {"data":resp_data['data']},
+                        {"data":serializer_obj.data},
                         status=status.HTTP_200_OK
-            )
+                    )
+                
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":"Record Not Found"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+
+    @action(detail = False,methods=['post'])
+    def order_review(self,request):
+        data = request.data.copy()
+        product_id = data.get("product_id")
+        order_type = data.get('order_type')
+        
+        try:
+            if product_id:
+                queryset = Product.objects.get(uid=product_id)
+                serializer_obj = ProductDetailSerializer(queryset).data
+                if order_type == '2':
+                    asking_price = float(queryset.asking_price) 
+                    inspection_price = (asking_price/10)*100
+                    serializer_obj['inspection_price'] = inspection_price
+
+                return SimpleResponse(
+                            {"data":serializer_obj},
+                            status=status.HTTP_200_OK
+                )
+            else:
+                return SimpleResponse(
+                    {"msg":"product_id is required field"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
 
         except Exception as e:
             print("Error",str(e))
@@ -502,80 +685,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
-        
-        
-        
-    @action(detail = False,methods=['post'])
-    def search_category(self,request):
-        data = request.data.copy()
-        category_id = data.get("id",None)
-        search = data.get('search',None)
-        try:
-            if category_id:
-                queryset = Category.objects.filter(id=category_id)
-            else:
-                queryset = Category.objects.filter(parent=None)
-            serializer_obj = CategorySerializer(queryset,many=True)
-            
-            return SimpleResponse(
-                        {"data":serializer_obj.data},
-                        status=status.HTTP_200_OK
-                    )            
 
-        except Exception as e:
-            print("Error",str(e))
-            return SimpleResponse(
-                    {"msg":str(e)},
-                    status= status.HTTP_400_BAD_REQUEST,
-                    validate_errors =1
-                )
-        
-        
-        
-
-    @action(detail = False,methods=['post'])
-    def parentlist(self,request):
-        data = request.data.copy()
-        try:
-            queryset = Category.objects.filter(parent=None)
-            serializer_obj = CategoryListSerializer(queryset,many=True)
-            return SimpleResponse(
-                        {"data":serializer_obj.data},
-                        status=status.HTTP_200_OK
-                    )            
-
-        except Exception as e:
-            print("Error",str(e))
-            return SimpleResponse(
-                    {"msg":str(e)},
-                    status= status.HTTP_400_BAD_REQUEST,
-                    validate_errors =1
-                )
-        
-    
-    @action(detail = False,methods=['post'])
-    def subcategorylist(self,request):
-        data = request.data.copy()
-        parent_id = data.get('parent_id')
-        try:
-            queryset = Category.objects.filter(parent=parent_id)
-            serializer_obj = CategoryListSerializer(queryset,many=True)
-            return SimpleResponse(
-                        {"data":serializer_obj.data},
-                        status=status.HTTP_200_OK
-                    )            
-
-        except Exception as e:
-            print("Error",str(e))
-            return SimpleResponse(
-                    {"msg":str(e)},
-                    status= status.HTTP_400_BAD_REQUEST,
-                    validate_errors =1
-                )
-
-
-
-
+   
 
 
 
@@ -642,6 +753,36 @@ class OrderViewSet(viewsets.ModelViewSet):
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
+
+    #  add inspection
+    @action(detail = False,methods=['post'])
+    def payemnt(self,request):
+        data=request.data.copy()
+        try:
+            serializer_obj=PaymentSerializer(data=data)
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+                
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+    
         
     
     

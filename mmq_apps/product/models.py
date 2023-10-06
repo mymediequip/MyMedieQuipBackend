@@ -186,6 +186,23 @@ class ScheduleMeeting(UUIDBase):
         db_table='mmq_schedule_meeting'
 
 
+class InspectionReport(UUIDBase):
+    buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="inspetion_buyer")
+    seller= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="inspetion_seller")
+    product= models.ForeignKey(Product,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="inspection_product")
+    inspection_file=models.FileField(max_length=10,upload_to='inspection_report')    
+    amount = models.DecimalField(max_digits=40,decimal_places=2)
+    base_amount= models.DecimalField(max_digits=40,decimal_places=2)
+    INSPECTION_STATUS = (
+        (1, "Pending"),
+        (2, "Canceled"),
+        (3, "Completed")
+    )
+    inspection_status = models.CharField(_("payment status"), choices=INSPECTION_STATUS, max_length=50, blank=True,default=1)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    
+    class Meta:
+        db_table='mmq_inspection_report'
 
 
 class Order(UUIDBase):
@@ -219,9 +236,11 @@ class Order(UUIDBase):
 
 
 class Payment(UUIDBase):
+    buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="payment_buyer")
+    product = models.ForeignKey(Product,to_field="uid", verbose_name=_("Product"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="payment_product")
     order= models.ForeignKey(Order,to_field="uid", verbose_name=_("Order"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="payment_order")
-    sub_total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
-    total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    sub_total = models.DecimalField(max_digits=40,decimal_places=2,default=0)
+    total = models.DecimalField(max_digits=40,decimal_places=2,default=0)
     payment_type = models.ForeignKey(PaymentOption,verbose_name=_("Payment Type"),on_delete=models.DO_NOTHING,null=True,blank=True)
     PAYMENT_STATUS = (
         (1, "Pending"),
@@ -233,8 +252,7 @@ class Payment(UUIDBase):
         (1, "Order"),
         (2, "Inspection")
     )
-    order_type = models.CharField(_("Order Type"), choices=ORDER_TYPE, max_length=50, blank=True,default=1)
-   
+    order_type = models.CharField(_("Order Type"), choices=ORDER_TYPE, max_length=50, blank=True,default=1)   
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
     
     class Meta:
