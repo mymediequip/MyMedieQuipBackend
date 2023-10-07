@@ -582,8 +582,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_id = data.get('product_id')
         buyer_id = data.get('buyer_id')
         try:
-            queryset = ScheduleMeeting.objects.filter(buyer=buyer_id,product=product_id)
-            serializer_obj = ScheduleMeetingSerializer(queryset,many=True)
+            queryset = ScheduleMeeting.objects.filter(buyer=buyer_id,product=product_id).last('id')
+            serializer_obj = ScheduleMeetingSerializer(queryset[0])
             return SimpleResponse(
                         {"data":serializer_obj.data},
                         status=status.HTTP_200_OK
