@@ -582,8 +582,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_id = data.get('product_id')
         buyer_id = data.get('buyer_id')
         try:
-            queryset = ScheduleMeeting.objects.filter(buyer=buyer_id,product=product_id).last()
-            serializer_obj = ScheduleMeetingSerializer(queryset[0])
+            queryset = ScheduleMeeting.objects.filter(buyer=buyer_id,product=product_id)
+            serializer_obj = ScheduleMeetingSerializer(queryset,many=True)
             return SimpleResponse(
                         {"data":serializer_obj.data},
                         status=status.HTTP_200_OK
@@ -593,7 +593,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             print("Error",str(e))
             printException()
             return SimpleResponse(
-                    {"msg":"Record Not Found"},
+                    {"msg":"Record Not Found"+str(e)},
                     status= status.HTTP_400_BAD_REQUEST,
                     validate_errors =1
                 )
