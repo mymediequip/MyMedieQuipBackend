@@ -634,8 +634,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         product_id = data.get('product_id')
         buyer_id = data.get('buyer_id')
         try:
-            queryset = InspectionReport.objects.get(buyer=buyer_id,product=product_id).last()
-            serializer_obj = InspectionReportSerializer(queryset)
+            queryset = InspectionReport.objects.filter(buyer=buyer_id,product=product_id)
+            serializer_obj = InspectionReportSerializer(queryset,many=True)
             return SimpleResponse(
                         {"data":serializer_obj.data},
                         status=status.HTTP_200_OK

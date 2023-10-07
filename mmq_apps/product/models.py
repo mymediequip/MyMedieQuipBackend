@@ -190,9 +190,9 @@ class InspectionReport(UUIDBase):
     buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="inspetion_buyer")
     seller= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="inspetion_seller")
     product= models.ForeignKey(Product,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="inspection_product")
-    inspection_file=models.FileField(max_length=10,upload_to='inspection_report')    
+    inspection_file=models.CharField(max_length=250,null=True,blank=True)   
     amount = models.DecimalField(max_digits=40,decimal_places=2)
-    base_amount= models.DecimalField(max_digits=40,decimal_places=2)
+    base_amount = models.DecimalField(max_digits=40,decimal_places=2)
     INSPECTION_STATUS = (
         (1, "Pending"),
         (2, "Canceled"),
