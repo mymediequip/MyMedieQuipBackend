@@ -664,7 +664,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 if order_type == '2':
                     asking_price = float(queryset.asking_price) 
                     inspection_price = (asking_price/10)*100
-                    serializer_obj['inspection_price'] = inspection_price
+                    serializer_obj.update({"inspection_price":inspection_price})
 
                 return SimpleResponse(
                             {"data":serializer_obj},
