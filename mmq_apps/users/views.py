@@ -370,6 +370,99 @@ class UserViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST,
                         validate_errors=1
                     )
+
+    @action(detail = False,methods=['post'])
+    def add_address(self,request):
+        data = request.data.copy()
+        user = request.user
+        address_id = data.get("address_id",None)
+        is_default = data.get('is_default')
+        data['user'] = user.uid
+        try:
+            if is_default == 1:
+                add_obj = Address.objects.filter(user = user.uid) 
+                if len(add_obj)>0:
+                    for q in add_obj:
+                        q.is_default = 0 
+                        q.save()
+
+            if address_id:
+                queryset = Address.objects.get(uid=address_id)
+                serializer_obj = AddressSerializer(queryset,data=data)
+            else:
+                serializer_obj = AddressSerializer(data=data)
+
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    @action(detail = False,methods=['post'])
+    def address_details(self,request):
+        data = request.data.copy()
+        address_id = data.get("address_id",None)
+        try:
+            if address_id:
+                queryset = Address.objects.get(uid=address_id)
+                serializer_obj = AddressSerializer(queryset)
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":"address_id is required field"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":"Record not found"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+
+    @action(detail = False,methods=['post'])
+    def list_address(self,request):
+        data = request.data.copy()
+        q_field = ['id']
+        orderfilter = '-id'
+        sort = data.get('sort',None)
+        if sort =='asc':
+            orderfilter = 'id'
+        try:
+            resp_data = common_list_data(request, data, q_field, AddressSerializer, Address,orderfilter)
+            return SimpleResponse(
+                        {"data":resp_data['data']},
+                        status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            print("Error",str(e))
+            printException()
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
       
          
 

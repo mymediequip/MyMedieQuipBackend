@@ -5,6 +5,7 @@ from common.uid_base_model import UUIDBase
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
+import json
 # Create your models here.
 
 class CustomUserManager(BaseUserManager):
@@ -170,6 +171,28 @@ class Profile(UUIDBase):
 
     class Meta:
         db_table = 'mmq_profile'
+
+
+
+class Address(UUIDBase):
+    name = models.CharField(_("Name"), max_length=100, null=True, blank=True)
+    mobile = models.CharField(_("mobile"), max_length=14, null=True, blank=True)
+    alternate_mobile = models.CharField(_("alternate_mobile"), max_length=14, null=True, blank=True)
+    location = models.CharField(_("location"), max_length=250, null=True,blank=True)
+    address = models.TextField(_("address"),null=True,blank=True)
+    state = models.CharField(_("state"), max_length=100, null=True,blank=True)
+    city = models.CharField(_("city"), max_length=100, null=True,blank=True)
+    zip_code = models.CharField(_("Zip Code"), max_length=50, null=True,blank=True)
+    landmark = models.CharField(_("city"), max_length=250, null=True,blank=True)
+    user = models.ForeignKey(User, to_field="uid", null=True, related_name="user_address", on_delete=models.CASCADE)
+    latitude = models.CharField(verbose_name=_("Latitude"), max_length=20, blank=True, null=True)
+    longitude = models.CharField(verbose_name=_("Longitude"), max_length=20, blank=True, null=True)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    # meta_data = models.JsonField(verbose_name=_("Meta data"), max_length=20, blank=True, null=True)
+    is_default = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Yes; 0 for No"), default=0)
+
+    class Meta:
+        db_table = 'mmq_address'
 
 
 class Otp(models.Model):

@@ -92,7 +92,8 @@ class Product(UUIDBase):
     is_deleted = models.PositiveSmallIntegerField(verbose_name=_("Deleted: 1 for Active; 0 for Not Deleted"), default=0)
     PRODUCT_STATUS = (
         (1, "OPEN"),
-        (2, "LOCK")
+        (2, "LOCK"),
+        (3, "Selled")
     )
     product_status = models.CharField(
         _("product_status"), choices=PRODUCT_STATUS, max_length=50, blank=True,default=1)
@@ -209,9 +210,10 @@ class Order(UUIDBase):
     buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="order_buyer")
     seller = models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="orderseller")
     product = models.ForeignKey(Product,to_field="uid", verbose_name=_("Product"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="order_product")
-    asking_price = models.DecimalField(max_digits=40,decimal_places=4,default=0)
-    sub_total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
-    total = models.DecimalField(max_digits=40,decimal_places=4,default=0)
+    asking_price = models.DecimalField(max_digits=40,decimal_places=3,default=0)
+    sub_total = models.DecimalField(max_digits=40,decimal_places=3,default=0)
+    total = models.DecimalField(max_digits=40,decimal_places=3,default=0)
+    remain_amount = models.DecimalField(max_digits=40,decimal_places=3,default=0)
     payment_type = models.ForeignKey(PaymentOption,verbose_name=_("Payment Type"),on_delete=models.DO_NOTHING,null=True,blank=True)
     PAYMENT_STATUS = (
         (1, "Pending"),
