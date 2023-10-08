@@ -441,7 +441,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 )
 
     @action(detail = False,methods=['post'])
-    def list_address(self,request):
+    def address_list(self,request):
         data = request.data.copy()
         q_field = ['id']
         orderfilter = '-id'
