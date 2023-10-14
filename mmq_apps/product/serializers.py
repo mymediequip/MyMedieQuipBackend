@@ -27,6 +27,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     product_images = serializers.SerializerMethodField('get_product_images')
     product_video = serializers.SerializerMethodField('get_product_video')
     seller_name = serializers.ReadOnlyField(source='user.user_profile.name')
+    seller_firstname = serializers.ReadOnlyField(source='user.user_profile.first_name')
+    seller_lastname = serializers.ReadOnlyField(source='user.user_profile.last_name')
 
     
 
