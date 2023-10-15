@@ -188,6 +188,12 @@ class Address(UUIDBase):
     latitude = models.CharField(verbose_name=_("Latitude"), max_length=20, blank=True, null=True)
     longitude = models.CharField(verbose_name=_("Longitude"), max_length=20, blank=True, null=True)
     status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+    ADDRESS_CHOICE = (
+        (1, "HOME"),
+        (2, "OFFICE")
+    )
+    address_type = models.CharField(
+        _("Device Type"), choices=ADDRESS_CHOICE, max_length=50, blank=True)
     # meta_data = models.JsonField(verbose_name=_("Meta data"), max_length=20, blank=True, null=True)
     is_default = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Yes; 0 for No"), default=0)
 

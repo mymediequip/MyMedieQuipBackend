@@ -93,7 +93,8 @@ class Product(UUIDBase):
     PRODUCT_STATUS = (
         (1, "OPEN"),
         (2, "LOCK"),
-        (3, "Selled")
+        (3, "Selled"),
+        (4, "PENDING")
     )
     product_status = models.CharField(
         _("product_status"), choices=PRODUCT_STATUS, max_length=50, blank=True,default=1)
