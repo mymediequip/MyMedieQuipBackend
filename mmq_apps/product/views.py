@@ -782,6 +782,79 @@ class OrderViewSet(viewsets.ModelViewSet):
                     validate_errors =1
                 )
 
+
+    @action(detail = False,methods=['post'])
+    def addcart(self,request):
+        data = request.data.copy()
+        uid = data.get("uid",None)
+        try:
+            if uid:
+                queryset = Cart.objects.get(id=uid)
+                serializer_obj = CartSerializer(queryset,data=data)
+            else:
+                serializer_obj = CartSerializer(data=data)
+
+            if serializer_obj.is_valid():
+                serializer_obj.save()
+                return SimpleResponse(
+                        {"data":serializer_obj.data},
+                        status=status.HTTP_200_OK
+                    )
+            else:
+                return SimpleResponse(
+                    {"msg":str(serializer_obj.errors)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                )
+        
+    
+    @action(detail = False,methods=['post'])
+    def cartlist(self,request):
+        data = request.data.copy()
+        q_field = []
+        try:
+            resp_data = common_list_data(request, data, q_field, CartSerializer, Cart,'id')
+            # serializer_obj = CartSerializer(queryset,many=True)
+            return SimpleResponse(
+                        {"data":resp_data},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":str(e)},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                ) 
+
+    @action(detail = False,methods=['post'])
+    def cartremove(self,request):
+        data = request.data.copy()
+        cart_id = data.get('cart_id') 
+        try:
+            queryset = Cart.objects.get(uid=cart_id).delete()
+            
+            return SimpleResponse(
+                        {"msg":"Delete Succesfully"},
+                        status=status.HTTP_200_OK
+                    )            
+
+        except Exception as e:
+            print("Error",str(e))
+            return SimpleResponse(
+                    {"msg":"record not fount"},
+                    status= status.HTTP_400_BAD_REQUEST,
+                    validate_errors =1
+                ) 
+
     
         
     

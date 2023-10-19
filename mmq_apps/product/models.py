@@ -260,3 +260,15 @@ class Payment(UUIDBase):
     
     class Meta:
         db_table='mmq_payment'
+
+
+
+class Cart(UUIDBase):
+    buyer= models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="cart_buyer")
+    seller = models.ForeignKey(User,to_field="uid", verbose_name=_("User"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="cart_seller")
+    product = models.ForeignKey(Product,to_field="uid", verbose_name=_("Product"),on_delete=models.DO_NOTHING,null=True,blank=True,related_name="cart_product")
+    asking_price = models.DecimalField(max_digits=40,decimal_places=3,default=0)
+    status = models.PositiveSmallIntegerField(verbose_name=_("Status: 1 for Active; 0 for InActive"), default=1)
+
+    class Meta:
+        db_table='mmq_cart'
