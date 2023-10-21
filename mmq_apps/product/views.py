@@ -97,6 +97,14 @@ class SpecialityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     name = 'Speciality'
 
+    def get_permissions(self):
+
+        if self.action == 'lists' :
+            print("\n in self action")
+            return [AllowAny(), ] 
+        return super(SpecialityViewSet, self).get_permissions()
+
+
     @action(detail = False,methods=['post'])
     def add(self,request):
         data = request.data.copy()
@@ -338,7 +346,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail = False,methods=['post'])
     def plists(self,request):
         data = request.data.copy()
-        q_field = ["equip_name"]
+        q_field = ["equip_name","category_list"]
         orderfilter = '-id'
         sort = data.get('sort',None)
         if sort =='asc':
